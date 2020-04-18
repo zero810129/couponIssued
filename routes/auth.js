@@ -165,7 +165,8 @@ router.post('/couponIssued', isNotLoggedIn, async (req, res, next) => {
       where: {couponNumber : issuedCoupon.couponNumber}
     });
 
-    return res.redirect('/');
+    
+    return res.render("login.pug", {issuedCouponNumber: issuedCoupon.couponNumber });
   } catch (error) {
     console.error(error);
     return next(error);

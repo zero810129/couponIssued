@@ -70,6 +70,8 @@ html
           input#inputUserID(type='text' name='inputUserID' required)
         if seachuserError
           .error-message= seachuserError
+        if issuedCouponNumber
+          h4 발급성공 : 쿠폰번호 #{issuedCouponNumber}
         button#issued(type='submit') 발급
       form#couponIssudSearch-form(action='/auth/couponIssudSearch' method='post')
         h4 필수문제3. 사용자에게 지급된 쿠폰 조회
@@ -120,4 +122,4 @@ html
                 td= array.user.username
                 td= array.useYN
                 td= array.expDate
-      h4 필수문제7. 만료 3일전 사용자에게 메시지 발송(1분마다 발송중)
+      h4 필수문제7. 만료 3일전 사용자에게 메시지 발송(10초마다 발송중)

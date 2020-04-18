@@ -24,10 +24,10 @@ router.post('/token', async (req, res) => {
     }
     const token = jwt.sign({
       id: domain.user.id,
-      nick: domain.user.nick,
+      username: domain.user.username,
     }, process.env.JWT_SECRET, {
       expiresIn: '1m', // 1분
-      issuer: 'nodebird',
+      issuer: 'couponMaster',
     });
     return res.json({
       code: 200,
