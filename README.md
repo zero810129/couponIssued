@@ -29,4 +29,6 @@
   . ex1.소스파일에 있는 임시 쿠폰번호 CSV 업로드 기능 추가  
   . ex2.추가 다른 서버에서 호출하는 API 확인을 위해 도메인 등록 후 테스트 가능.  
     - https://github.com/zero810129/couponIssuedCall 에서 소스 다운  
-    - "npm i"로 모듈 설치 
+    - "npm i"로 모듈 설치
+    - "npm start"로 서버 기동 
+    - http://localhost:8003/couponList 실행 : 현재 발급된 쿠폰 정보 가져오기
