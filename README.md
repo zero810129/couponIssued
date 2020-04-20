@@ -30,5 +30,7 @@
   . ex2.추가 다른 서버에서 호출하는 API 확인을 위해 도메인 등록 후 테스트 가능.  
     - https://github.com/zero810129/couponIssuedCall 에서 소스 다운  
     - "npm i"로 모듈 설치  
-    - "npm start"로 서버 기동  
+    - "npm start"로 서버 기동
+    - http://localhost:8002/ 접속 후 로그인.  로그인 상태에서 도메인 등록 :  localhost:8003  
+    - 발급된 클라이언트 비밀키를 couponIssuedCall 소스 .env CLIENT_SECRET 등록  
     - http://localhost:8003/couponList 실행 : 현재 발급된 쿠폰 정보 가져오기  
