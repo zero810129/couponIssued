@@ -6,6 +6,9 @@ const { isLoggedIn, isNotLoggedIn, verifyToken } = require('./middlewares');
 const { User } = require('../models');
 const { Coupon } = require('../models');
 const { sequelize:{Op} } = require('../models');
+const path = require("path");
+const fs = require("fs");
+const parse = require('csv-parse');
 
 const router = express.Router();
 
@@ -97,7 +100,7 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
       id: user.id,
       userid: user.userid,
     }, process.env.JWT_SECRET, {
-      expiresIn: '5m', // 5분
+      expiresIn: '10m', // 10분
       issuer: 'couponsystem',
     });
 
@@ -125,6 +128,9 @@ router.get('/logout', isLoggedIn, (req, res) => {
 router.post('/couponCreate', verifyToken, async (req, res, next) => {
   const { couponCount } = req.body;
   try {
+
+    req.connection.setTimeout( 60 * 10 * 1000) // set timeout 10 min.
+
     let couponRandomNm;
     let couponRandomArray = [];   
     for (let i = 0; i < couponCount; i++) {
@@ -291,6 +297,35 @@ router.post('/couponExpSearch', verifyToken, async (req, res, next) => {
       console.error(error);
       return next(error);
     }
+});
+
+router.post('/importCSVData', isNotLoggedIn, async (req, res, next) => {
+  const { } = req.body;
+  try {
+
+    let filePath = path.join(__dirname, "../empCoupon.csv");
+    const data = fs.readFileSync(filePath, {encoding: "utf8"});
+    const rows = data.split("\n");
+    let couponRandomArray = [];
+
+    await fs.createReadStream(filePath)
+      .pipe(parse({ delimiter: ',' }))
+      .on('data', function (csvrow) {
+        couponRandomArray.push({ couponNumber: (csvrow[0]).trim() + '', useYN: 'N', PaymentYN: 'N', });
+      })
+      .on('end', function () {
+        //do something wiht csvData
+        Coupon.bulkCreate(couponRandomArray, { validate: true }).then(() => {
+          console.log('couponRandomArray created');
+        });
+      });
+
+
+    return res.redirect('/');
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
 });
 
 module.exports = router;

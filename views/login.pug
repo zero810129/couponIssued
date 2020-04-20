@@ -101,9 +101,12 @@ html
               td= array.useYN
               td= array.expDate
     h4 필수문제7. 만료 3일전 사용자에게 메시지 발송(10초마다 발송중)
+    form#couponCancel-form(action='/auth/importCSVData' method='post')
+      h4 ex1. CSV파일 업로드
+      button#couponCancel(type='submit') 업로드
     if user && user.id
       form(action='/domain' method='post')
-        h4 ex. 외부 도메인 등록하기
+        h4 ex2. 외부 도메인 등록하기
         div
           label(for='host') 도메인
           input#host(name='host' placeholder="ex) dongin.com")
