@@ -76,7 +76,7 @@ router.post('/domain', (req, res, next) => {
   Domain.create({
     userId: req.user.id,
     host: req.body.host,
-    type: req.body.type,
+    type: 'premium',
     clientSecret: uuidv4(),
   })
     .then(() => {

@@ -1,7 +1,8 @@
 const express = require('express');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
-const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
+const jwt = require('jsonwebtoken');
+const { isLoggedIn, isNotLoggedIn, verifyToken } = require('./middlewares');
 const { User } = require('../models');
 const { Coupon } = require('../models');
 const { sequelize:{Op} } = require('../models');
@@ -90,7 +91,21 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
     if (!user) {
       req.flash('loginError', info.message);
       return res.redirect('/');
+    }   
+
+    const token = jwt.sign({
+      id: user.id,
+      userid: user.userid,
+    }, process.env.JWT_SECRET, {
+      expiresIn: '5m', // 5분
+      issuer: 'couponsystem',
+    });
+
+    if (!req.session.jwt) { // 세션에 토큰이 없으면
+      req.session.jwt = token; // 세션에 토큰 저장
     }
+    console.log('req.session.jwt ==>' + req.session.jwt);
+
     return req.login(user, (loginError) => {
       if (loginError) {
         console.error(loginError);
@@ -107,7 +122,7 @@ router.get('/logout', isLoggedIn, (req, res) => {
   res.redirect('/');
 });
 
-router.post('/couponCreate', isNotLoggedIn, async (req, res, next) => {
+router.post('/couponCreate', verifyToken, async (req, res, next) => {
   const { couponCount } = req.body;
   try {
     let couponRandomNm;
@@ -115,14 +130,14 @@ router.post('/couponCreate', isNotLoggedIn, async (req, res, next) => {
     for (let i = 0; i < couponCount; i++) {
       couponRandomNm = randomString();
      
-      console.log('randomstring => ' + couponRandomNm);
+      //console.log('randomstring => ' + couponRandomNm);
       
       const exCoupon = await Coupon.findOne({ where: { couponNumber : couponRandomNm } });
       if (exCoupon) {
         console.log('중복 쿠폰 발생!');
       } else {
         const isExistData = couponRandomArray.find(couponRandomArray => couponRandomArray.couponNumber === couponRandomNm)
-        console.log(isExistData);
+        //console.log(isExistData);
         if (isExistData != undefined) {
           console.log('중복 쿠폰 발생!');
           i--;
@@ -143,7 +158,7 @@ router.post('/couponCreate', isNotLoggedIn, async (req, res, next) => {
   }
 });
 
-router.post('/couponIssued', isNotLoggedIn, async (req, res, next) => {
+router.post('/couponIssued', verifyToken, async (req, res, next) => {
     const { inputUserID } = req.body;
     try {
     
@@ -173,21 +188,21 @@ router.post('/couponIssued', isNotLoggedIn, async (req, res, next) => {
   }
 });
 
-router.post('/couponIssudSearch', isNotLoggedIn, async (req, res, next) => {
+router.post('/couponIssudSearch', verifyToken, async (req, res, next) => {
   const { inputUserID } = req.body;
   try {
   
   const exUserId = await User.findOne({ where: { userid : inputUserID } });
   const exCoupon = await Coupon.findAll({ where: { userId : exUserId.id } });
 
-  return res.render("login.pug", {exCoupon: exCoupon });
+  return res.render("login.pug", {exCoupon: exCoupon,  user: req.user });
   } catch (error) {
     console.error(error);
     return next(error);
   }
 });
 
-router.post('/couponUse', isNotLoggedIn, async (req, res, next) => {
+router.post('/couponUse', verifyToken, async (req, res, next) => {
   const { inputUserCoupon } = req.body;
   try {
   
@@ -220,7 +235,7 @@ router.post('/couponUse', isNotLoggedIn, async (req, res, next) => {
 }
 });
 
-router.post('/couponCancel', isNotLoggedIn, async (req, res, next) => {
+router.post('/couponCancel', verifyToken, async (req, res, next) => {
   const { inputCancelCoupon } = req.body;
   try {
   
@@ -253,10 +268,11 @@ router.post('/couponCancel', isNotLoggedIn, async (req, res, next) => {
 }
 });
 
-router.post('/couponExpSearch', isNotLoggedIn, async (req, res, next) => {
+router.post('/couponExpSearch', verifyToken, async (req, res, next) => {
   const { } = req.body;
   try {
 
+    
     const todate = getToday();
     const expDateCoupon = await Coupon.findAll({
       include: [
@@ -270,7 +286,7 @@ router.post('/couponExpSearch', isNotLoggedIn, async (req, res, next) => {
       } 
     });
     
-    return res.render("login.pug", {expDateCoupon: expDateCoupon });
+    return res.render("login.pug", {expDateCoupon: expDateCoupon, user: req.user});
     } catch (error) {
       console.error(error);
       return next(error);

@@ -2,7 +2,8 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 
 const { verifyToken } = require('./middlewares');
-const { Domain, User, Post, Hashtag } = require('../models');
+const { Coupon } = require('../models');
+const { Domain, User } = require('../models');
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ router.post('/token', async (req, res) => {
       where: { clientSecret },
       include: {
         model: User,
-        attribute: ['nick', 'id'],
+        attribute: ['userid', 'id'],
       },
     });
     if (!domain) {
@@ -24,10 +25,10 @@ router.post('/token', async (req, res) => {
     }
     const token = jwt.sign({
       id: domain.user.id,
-      username: domain.user.username,
+      nick: domain.user.userid,
     }, process.env.JWT_SECRET, {
       expiresIn: '1m', // 1분
-      issuer: 'couponMaster',
+      issuer: 'couponsystem',
     });
     return res.json({
       code: 200,
@@ -45,6 +46,24 @@ router.post('/token', async (req, res) => {
 
 router.get('/test', verifyToken, (req, res) => {
   res.json(req.decoded);
+});
+
+router.get('/couponList', verifyToken, (req, res) => {
+  Coupon.findAll({ where: { PaymentYN : 'Y' } })
+    .then((posts) => {
+      console.log(posts);
+      res.json({
+        code: 200,
+        payload: posts,
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({
+        code: 500,
+        message: '서버 에러',
+      });
+    });
 });
 
 module.exports = router;

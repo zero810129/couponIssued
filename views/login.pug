@@ -17,30 +17,8 @@ html
       }
   body
     if user && user.id
-      span.user-name= '안녕하세요! ' + user.nick + '님'
+      span.user-name= '안녕하세요! ' + user.username + '님 로그인되었습니다.'
       a(href='/auth/logout'): button 로그아웃
-      fieldset
-        legend 도메인 등록
-        form(action='/domain' method='post')
-          div
-            label(for='type-free') 무료
-            input#type-free(type='radio' name='type' value='free')
-            label(for='type-premium') 프리미엄
-            input#type-premium(type='radio' name='type' value='premium')
-          div
-            label(for='host') 도메인
-            input#host(name='host' placeholder="ex) zerocho.com")
-          button 저장
-      table
-        tr
-          th 도메인 주소
-          th 타입
-          th 클라이언트 비밀키
-        for domain in user.domains
-          tr
-            td= domain.host
-            td= domain.type
-            td= domain.clientSecret
     else
       form#login-form(action='/auth/login' method='post')
         h4 로그인.
@@ -56,70 +34,88 @@ html
         button#login(type='submit') 로그인
       block content
 
-      form#couponCreate-form(action='/auth/couponCreate' method='post')
-        h4 필수문제1. 랜덤코드 쿠폰 생성
-        .input-group
-          label(for='couponCount') 생성갯수
-          input#couponCount(type='number' name='couponCount' required)
-        button#create(type='submit') 쿠폰생성
+    form#couponCreate-form(action='/auth/couponCreate' method='post')
+      h4 필수문제1. 랜덤코드 쿠폰 생성
+      .input-group
+        label(for='couponCount') 생성갯수
+        input#couponCount(type='number' name='couponCount' required)
+      button#create(type='submit') 쿠폰생성
 
-      form#issued-form(action='/auth/couponIssued' method='post')
-        h4 필수문제2. 특정 사용자에게 지급
-        .input-group
-          label(for='inputUserID') 발급대상 사용자 아이디
-          input#inputUserID(type='text' name='inputUserID' required)
-        if seachuserError
-          .error-message= seachuserError
-        if issuedCouponNumber
-          h4 발급성공 : 쿠폰번호 #{issuedCouponNumber}
-        button#issued(type='submit') 발급
-      form#couponIssudSearch-form(action='/auth/couponIssudSearch' method='post')
-        h4 필수문제3. 사용자에게 지급된 쿠폰 조회
-        .input-group
-          label(for='inputUserID') 조회대상 userID
-          input#inputUserID2(type='text' name='inputUserID' required)
-        button#couponIssudSearch(type='submit') 조회
-        if exCoupon
-          table
+    form#issued-form(action='/auth/couponIssued' method='post')
+      h4 필수문제2. 특정 사용자에게 지급
+      .input-group
+        label(for='inputUserID') 발급대상 사용자 아이디
+        input#inputUserID(type='text' name='inputUserID' required)
+      if seachuserError
+        .error-message= seachuserError
+      if issuedCouponNumber
+        h4 발급성공 : 쿠폰번호 #{issuedCouponNumber}
+      button#issued(type='submit') 발급
+    form#couponIssudSearch-form(action='/auth/couponIssudSearch' method='post')
+      h4 필수문제3. 사용자에게 지급된 쿠폰 조회
+      .input-group
+        label(for='inputUserID') 조회대상 사용자 아이디
+        input#inputUserID2(type='text' name='inputUserID' required)
+      button#couponIssudSearch(type='submit') 조회
+      if exCoupon
+        table
+          tr
+            th 쿠폰번호
+            th 사용여부
+            th 만료일
+          each array in exCoupon
             tr
-              th 쿠폰번호
-              th 사용여부
-              th 만료일
-            each array in exCoupon
-              tr
-                td= array.couponNumber
-                td= array.useYN
-                td= array.expDate
-      form#couponUse-form(action='/auth/couponUse' method='post')
-        h4 필수문제4. 지급된 쿠폰 사용
-        .input-group
-          label(for='inputUserCoupon') 쿠폰번호
-          input#inputUserCoupon(type='text' name='inputUserCoupon' required)
-        if couponUseError
-          .error-message= couponUseError
-        button#couponUse(type='submit') 사용
-      form#couponCancel-form(action='/auth/couponCancel' method='post')
-        h4 필수문제5. 사용된 쿠폰 취소
-        .input-group
-          label(for='inputCancelCoupon') 쿠폰번호
-          input#inputCancelCoupon(type='text' name='inputCancelCoupon' required)
-        if couponCancelError
-          .error-message= couponCancelError
-        button#couponCancel(type='submit') 취소
-      form#couponExpSearch-form(action='/auth/couponExpSearch' method='post')
-        h4 필수문제6. 만료된 쿠폰 조회
-        button#couponExpSearch(type='submit') 조회
-        if expDateCoupon
-          table
+              td= array.couponNumber
+              td= array.useYN
+              td= array.expDate
+    form#couponUse-form(action='/auth/couponUse' method='post')
+      h4 필수문제4. 지급된 쿠폰 사용
+      .input-group
+        label(for='inputUserCoupon') 쿠폰번호
+        input#inputUserCoupon(type='text' name='inputUserCoupon' required)
+      if couponUseError
+        .error-message= couponUseError
+      button#couponUse(type='submit') 사용
+    form#couponCancel-form(action='/auth/couponCancel' method='post')
+      h4 필수문제5. 사용된 쿠폰 취소
+      .input-group
+        label(for='inputCancelCoupon') 쿠폰번호
+        input#inputCancelCoupon(type='text' name='inputCancelCoupon' required)
+      if couponCancelError
+        .error-message= couponCancelError
+      button#couponCancel(type='submit') 취소
+    form#couponExpSearch-form(action='/auth/couponExpSearch' method='post')
+      h4 필수문제6. 만료된 쿠폰 조회
+      button#couponExpSearch(type='submit') 조회
+      if expDateCoupon
+        table
+          tr
+            th 쿠폰번호
+            th 사용자ID
+            th 사용여부
+            th 만료일
+          each array in expDateCoupon
             tr
-              th 쿠폰번호
-              th 사용자ID
-              th 사용여부
-              th 만료일
-            each array in expDateCoupon
-              tr
-                td= array.couponNumber
-                td= array.user.username
-                td= array.useYN
-                td= array.expDate
-      h4 필수문제7. 만료 3일전 사용자에게 메시지 발송(10초마다 발송중)
+              td= array.couponNumber
+              td= array.user.username
+              td= array.useYN
+              td= array.expDate
+    h4 필수문제7. 만료 3일전 사용자에게 메시지 발송(10초마다 발송중)
+    if user && user.id
+      form(action='/domain' method='post')
+        h4 ex. 외부 도메인 등록하기
+        div
+          label(for='host') 도메인
+          input#host(name='host' placeholder="ex) dongin.com")
+        button 저장
+      if user.domains
+        table
+          tr
+            th 도메인 주소
+            th 타입
+            th 클라이언트 비밀키
+          each domain in user.domains
+            tr
+              td= domain.host
+              td= domain.type
+              td= domain.clientSecret

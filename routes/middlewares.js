@@ -18,6 +18,11 @@ exports.isNotLoggedIn = (req, res, next) => {
 
 exports.verifyToken = (req, res, next) => {
   try {
+    //강제세팅(JWT)
+    if (req.session.jwt) {
+      req.headers.authorization = req.session.jwt;
+    }
+
     req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
     return next();
   } catch (error) {
