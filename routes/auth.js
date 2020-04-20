@@ -187,7 +187,7 @@ router.post('/couponIssued', verifyToken, async (req, res, next) => {
     });
 
     
-    return res.render("login.pug", {issuedCouponNumber: issuedCoupon.couponNumber });
+    return res.render("login.pug", {issuedCouponNumber: issuedCoupon.couponNumber,  user: req.user });
   } catch (error) {
     console.error(error);
     return next(error);
