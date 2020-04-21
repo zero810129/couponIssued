@@ -8,7 +8,7 @@
  . 로그인 로직 구현을 위하여 passport 사용   
  . 대량의 데이터 저장시 문제점 해결  
     - 대량의 데이터 저장때문에 My sql의 설정 변경 : max_allowed_packet : 100M로 증가  
-    - API 1 호출시 대량건 생성 시 타임아웃이 걸려, 강제로 해당  API는 타임아웃 시간 10분으로 증가  
+    - API 1 호출시 대량건 생성할 경우 타임아웃이 걸려, 강제로 해당  API는 타임아웃 시간 10분으로 증가  
  
 빌드 방법  
  . Visual Studio Code 설치 https://code.visualstudio.com/  
